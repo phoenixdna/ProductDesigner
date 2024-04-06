@@ -12,10 +12,12 @@ from dotenv import find_dotenv, load_dotenv
 _ = load_dotenv(find_dotenv()) 
 
 uid = threading.current_thread().name
-host_avatar = 'assets/host_image.png'
-user_avatar = 'assets/user_image.png'
-judge_avatar = 'assets/judge_image.png'
-parti_avatar = 'assets/parti_image.png'
+tutor_avatar = 'assets/tutor.png'
+summarize_avatar = 'assets/summarize.png'
+extract_avatar = 'assets/extract.png'
+design_avatar = 'assets/design.png'
+user_avatar = 'assets/user.png'
+
 
 def init_game(state):
     model_configs = json.load(open('configs/model_configs.json', 'r'))
@@ -24,13 +26,15 @@ def init_game(state):
         model_configs=model_configs,
         agent_configs="configs/agent_configs_poem.json",
     )
-    state['host_agent'] = agents[0]
-    state['judge_agent'] = agents[1]
-    state['parti_agent'] = agents[2]
+    user_agent = UserAgent()
+    state['tutor_agent'] = agents[0]
+    state['summarize_agent'] = agents[1]
+    state['extract_agent'] = agents[2]
+    state['design_agent'] = agents[3]
     return state
 
 # 创建 Gradio 界面
-demo = gr.Blocks(css='assets/app.css')
+demo = gr.Blocks(css='assets/appBot.css')
 with demo:
     warning_html_code = """
         <div class="hint" style="background-color: rgba(255, 255, 0, 0.15); padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ffcc00;">
@@ -56,16 +60,16 @@ with demo:
                 with gr.Column(min_width=270):
                     user_chatbot = gr.Chatbot(
                         elem_classes="app-chatbot",
-                        avatar_images=[user_avatar, parti_avatar],
-                        label="答题区",
+                        avatar_images=[user_avatar, tutor_avatar],
+                        label="记录和提示区",
                         show_label=True,
                         bubble_full_width=False,
                     )
                 with gr.Column(min_width=270):
                     user_chatsys = gr.Chatbot(
-                        value=[['您好，欢迎来到 飞花令大挑战，如果你准备好了，请回答「开始」', None]],
+                        value=[['您好，欢迎来到 产品大师，如果你准备好了，请输入「开始」', None]],
                         elem_classes="app-chatbot",
-                        avatar_images=[host_avatar, judge_avatar],
+                        avatar_images=[summarize_avatar, extract_avatar],
                         label="系统栏",
                         show_label=True,
                         bubble_full_width=False,
@@ -80,6 +84,8 @@ with demo:
                     send_button = gr.Button('📣发送', variant='primary')
             with gr.Row():
                 return_welcome_button = gr.Button(value="↩️返回首页")
+            with gr.Row():                
+                image_preview = gr.Image('assets/logo.png', width=300)  # 设置图片路径和宽度
     
     def game_ui():
         return {tabs: gr.update(visible=False), game_tabs: gr.update(visible=True)}
@@ -89,54 +95,62 @@ with demo:
 
     def send_message(chatbot, chatsys, user_input, _state):
         # 将发送的消息添加到聊天历史
-        host_agent = _state['host_agent']
-        judge_agent = _state['judge_agent']
-        parti_agent = _state['parti_agent']
+        tutor_agent = _state['tutor_agent']
+        summarize_agent = _state['summarize_agent']
+        extract_agent = _state['extract_agent']
+        design_agent = _state['design_agent']
         chatbot.append((user_input, None))
         yield {
             user_chatbot: chatbot,
             user_chatsys: chatsys,
             user_chat_input: '',
         }
+        global userinfo 
+        userinfo = 'default'
         if '开始' in user_input:
-            msg = Msg(name="system", content="飞花令游戏规则：请回答一句包含特定关键字的中国古诗词。下面有请主持人出题。")
+            msg = Msg(name="system", content="下面我们的销售经理将会向你提问了解您对产品的需求，目前产品类别是儿童桌椅")
             chatsys.append((f'{msg.content}', None))
             yield {
                 user_chatbot: chatbot,
                 user_chatsys: chatsys,
             }
-            host_msg = host_agent(msg)
-            chatsys.append((f"主持人：本轮的关键字是：{host_msg.content}", None))
+            tutor_msg = tutor_agent(msg)
+            chatsys.append((f"{tutor_msg.content}", None))
             yield {
                 user_chatbot: chatbot,
                 user_chatsys: chatsys,
             }
-            global pre_host_key
-            pre_host_key = host_msg.content
+            
+            while user_input!='Exit' or user_input!='':
+                user_agent = UserAgent(name='user', content=user_input)
+                chatsys.append((user_input, None))
+                yield {
+                    user_chatbot: chatbot,
+                    user_chatsys: chatsys,
+                }
+                tutor_msg = tutor_agent(user_agent)
+                chatsys.append((f"{tutor_msg.content}", None))
+                yield {
+                    user_chatbot: chatbot,
+                    user_chatsys: chatsys,
+                }
         else:
-            judge_content = f'主持人的关键字是{pre_host_key}，用户的诗句是{user_input}'
-            judge_msg = judge_agent(Msg(name='judge', content=judge_content))
-            chatsys.append((None, f'评审官：{judge_msg.content}'))
-            yield {
-                user_chatbot: chatbot,
-                user_chatsys: chatsys,
-            }
-            if '结束' not in judge_msg.content:
-                parti_content = f'主持人的关键字是{pre_host_key}'
-                parti_msg = parti_agent(Msg(name='parti', content=parti_content))
-                chatbot.append((None, f'对手答题：{parti_msg.content} 现在请选手继续答题。'))
+            msg = Msg(name="sytem", content=f"用户输入是{userinfo}")
+            if userinfo != 'default':
+                summarize_msg = summarize_agent(Msg(name='summarize', content=chatsys.content))
+                chatbot.append((None, f'总结助手：{summarize_msg.content}'))
                 yield {
                     user_chatbot: chatbot,
                     user_chatsys: chatsys,
                 }
-            else:
-                judge_msg = judge_agent(Msg(name='judge', content='本轮游戏结束，请将选手得分score重新初始化为5'))
-                chatsys.append(('恭喜你完成挑战，如您想重新游戏，请回答「开始」', None))
+                extract_msg = extract_agent(Msg(name='extract', content=chatsys.content))
+                chatbot.append((None, f'提取助手：{extract_msg.content}'))
                 yield {
                     user_chatbot: chatbot,
                     user_chatsys: chatsys,
                 }
-
+                userinfo = extract_msg.content
+        utils.createimg(userinfo)
     # change ui
     new_button.click(game_ui, outputs=[tabs, game_tabs])
     return_welcome_button.click(welcome_ui, outputs=[tabs, game_tabs])
