@@ -1,6 +1,11 @@
 import base64
 from http import HTTPStatus
+import agentscope
 import requests
+import os
+from agentscope.agents import DialogAgent
+from agentscope.agents.user_agent import UserAgent
+import dashscope
 
 def covert_image_to_base64(image_path):
     # 获得文件后缀名

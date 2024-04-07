@@ -30,9 +30,27 @@
         "class": "DialogAgent",
         "args": {
             "name": "designAssistant",
-            "sys_prompt": "You are a senior product manager, skilled in product design and creating visual prototypes of product appearances.",
+            "sys_prompt": "you are a prompt assistant, generate an english detailed prompt to be used for text to image generation for product,nothing else,make it concise and simple, less than 50 words",
             "model_config_name": "qwen",
             "use_memory": true
         }
-    }
+    },
+
+    {
+        "class": "TextToImageAgent",
+        "args": {
+            "name": "Painter",
+            "model_config_name": "my_img_config",
+            "use_memory": true
+        }
+    },
+    {
+      "class": "DialogAgent",
+      "args": {
+          "name": "productAssistant",
+          "sys_prompt": "你是一个产品经理，你有丰富的产品经验和对儿童桌椅的了解，请回答客户的时候简要回答，抓住重点的客户需求给与回应",
+          "model_config_name": "qwen",
+          "use_memory": true
+      }
+  }
 ]
