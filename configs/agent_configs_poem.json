@@ -40,6 +40,7 @@
         "class": "TextToImageAgent",
         "args": {
             "name": "Painter",
+            "sys_prompt": "你是一名设计师，你擅长于绘画和原型设计",
             "model_config_name": "my_img_config",
             "use_memory": true
         }
