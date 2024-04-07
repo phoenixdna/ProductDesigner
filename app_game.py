@@ -238,13 +238,20 @@ with demo:
             else:
                 j = j+1
                 if j > 1:
-
-                    product_msg = product_agent(user_input)
-                    chatsys.append((f"{product_msg.content}", None))
-                    yield {
-                        user_chatbot: chatbot,
-                        user_chatsys: chatsys,
-                    }
+                    if "开始" in user_input or "重新" in user_input:
+                        tutor = True
+                        chatsys.append(("让我们再次启动设计流程！", None))
+                        yield {
+                            user_chatbot: chatbot,
+                            user_chatsys: chatsys,
+                        }
+                    else:
+                        product_msg = product_agent(user_input)
+                        chatsys.append((f"{product_msg.content}", None))
+                        yield {
+                            user_chatbot: chatbot,
+                            user_chatsys: chatsys,
+                        }
                 else:
                     chatsys.append(("下面由我们的产品经理为您服务和答疑", None))
                     yield {
