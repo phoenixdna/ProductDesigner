@@ -85,7 +85,7 @@ with demo:
                     )
                 with gr.Column(min_width=270):
                     user_chatsys = gr.Chatbot(
-                        value=[['您好，欢迎来到 产品设计大师，先由我们专业的客服经理和您交流您的需求，你只需要做出简单选择即可，输入任意字符开始', None]],
+                        value=[['您好，欢迎来到 产品设计大师，先由我们专业的销售导购和您交流您的需求，你只需要做出简单选择即可，输入任意字符开始', None]],
                         elem_classes="app-chatbot",
                         avatar_images=[user_avatar, tutor_avatar, painter_avatar],
                         label="系统栏",
@@ -167,7 +167,7 @@ with demo:
                     print("using default")
 
                     requirement = "白色，地中海风格"
-                    chatbot.append(("下面使用缺省样式进行设计。。。", None))
+                    chatbot.append((f"""下面使用缺省样式：{requirement}进行设计。。。""", None))
                     yield {
                         user_chatbot: chatbot,
                         user_chatsys: chatsys,

@@ -199,7 +199,8 @@ def format_welcome_html():
         'rule_label': "<br>规则介绍",
         'char1': '销售导购Agent：富有经验的产品销售，通过问卷形式收集客户对于产品风格，产品颜色，产品外观，产品功能方面的需求',
         'char2': '总结Agent：根据问答总结客户对产品的需求，包括功能性需求，外观性需求，价格需求等信息',
-        'char3': '抽取Agent：从总结中抽取产品的关键特征',
+        'char3': '设计师：从总结中抽取产品的关键特征，并生成原型图',
+        'char4': '产品经理：在完成原型设计以后，和客户进行产品方面的答疑',
         'rule1': '1.需要客户根据提问做出选择性回答',
         'rule2': '2.回答为exit和空则退出当前问答，由产品设计师出图',
     }
@@ -217,6 +218,7 @@ def format_welcome_html():
             <li>{config.get("char1")}</li>
             <li>{config.get("char2")}</li>
             <li>{config.get("char3")}</li>
+            <li>{config.get("char4")}</li>
         </ul>
     </div>
     <div class="bot_intro_label">{config.get("rule_label")}</div>
