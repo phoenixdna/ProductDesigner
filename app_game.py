@@ -13,6 +13,7 @@ from dotenv import find_dotenv, load_dotenv
 _ = load_dotenv(find_dotenv()) 
 
 uid = threading.current_thread().name
+
 tutor_avatar = 'assets/tutor.png'
 summarize_avatar = 'assets/summarize.png'
 extract_avatar = 'assets/extract.png'
@@ -78,16 +79,16 @@ with demo:
                 with gr.Column(min_width=270):
                     user_chatbot = gr.Chatbot(
                         elem_classes="app-chatbot",
-                        avatar_images=[summarize_avatar, extract_avatar,product_avatar],
+                        avatar_images=[summarize_avatar, design_avatar, extract_avatar],
                         label="记录和提示区",
                         show_label=True,
                         bubble_full_width=False,
                     )
                 with gr.Column(min_width=270):
                     user_chatsys = gr.Chatbot(
-                        value=[['您好，欢迎来到 产品设计大师，先由我们专业的销售导购和您交流您的需求，你只需要做出简单选择即可，输入任意字符开始', None]],
+                        value=[['您好，欢迎来到产品设计大师，先由我们专业的销售导购和您交流您的需求，你只需要做出简单选择即可，输入任意字符开始', None]],
                         elem_classes="app-chatbot",
-                        avatar_images=[user_avatar, tutor_avatar, painter_avatar],
+                        avatar_images=[tutor_avatar, user_avatar, product_avatar],
                         label="系统栏",
                         show_label=True,
                         bubble_full_width=False,
@@ -128,7 +129,7 @@ with demo:
         design_agent = _state['design_agent']
         painter = _state['painter']
         product_agent = _state['product_agent']
-        chatsys.append((user_input, None))
+        chatsys.append((None, user_input))
         yield {
             user_chatbot: chatbot,
             user_chatsys: chatsys,
@@ -145,7 +146,7 @@ with demo:
                         user_chatsys: chatsys,
                     }
                     summarize_msg = summarize_agent(history)
-                    chatbot.append((f"{summarize_msg.content}", None))
+                    chatbot.append((None, f"{summarize_msg.content}"))
                     yield {
                         user_chatbot: chatbot,
                         user_chatsys: chatsys,
@@ -165,7 +166,7 @@ with demo:
                     requirement = extract_msg.content
                 else:
                     print("using default")
-
+                    chatsys.append((f"""需求信息不完全""", None))
                     requirement = "白色，地中海风格"
                     chatbot.append((f"""下面使用缺省样式：{requirement}进行设计。。。""", None))
                     yield {
@@ -206,11 +207,11 @@ with demo:
                 #                )
                 #                chatbot.append((f"""生成的图片如下\n\n<img src="{image_url}" alt="{image_url}" />""", None))
 
-                chatbot.append((f"""生成的图片如下：\n
+                chatbot.append((None, f"""生成的图片如下：\n
                             <a href="{image_url}">
                               <img src="{image_url}" alt="{image_url}">
                             </a>
-                            """, None))
+                            """))
                 # f"""<img src="{image_url}"></img>"""
                 yield {
                     user_chatbot: chatbot,
@@ -220,7 +221,7 @@ with demo:
                 tutor_msg = tutor_agent(user_input)
                 #tutor_msg.role = "assistant"
                 history = history + tutor_msg.content
-                chatsys.append((f"{tutor_msg.content}", None))
+                chatsys.append( (f"{tutor_msg.content}", None))
                 i = i+1
                 yield {
                     user_chatbot: chatbot,
@@ -240,6 +241,8 @@ with demo:
                 if j > 1:
                     if "开始" in user_input or "重新" in user_input:
                         tutor = True
+                        product_msg = product_agent("再见")
+                        chatsys.append((f"{product_msg.content}", None))
                         chatsys.append(("让我们再次启动设计流程！", None))
                         yield {
                             user_chatbot: chatbot,
@@ -253,7 +256,8 @@ with demo:
                             user_chatsys: chatsys,
                         }
                 else:
-                    chatsys.append(("下面由我们的产品经理为您服务和答疑", None))
+                    chatsys.append(("下面由我们的产品经理为您服务和答疑，请您输入您的问题交流。您也可以通过关键词'重新'，'开始'重新回到导购环节", None))
+                    print("user_input last is", user_input)
                     yield {
                         user_chatbot: chatbot,
                         user_chatsys: chatsys,
