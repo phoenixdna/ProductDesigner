@@ -147,6 +147,9 @@ with demo:
                         user_chatbot: chatbot,
                         user_chatsys: chatsys,
                     }
+                    if len(history) > 5000:
+                        history = history[-5000:]
+
                     summarize_msg = summarize_agent(history)
                     chatbot.append((None, f"{summarize_msg.content}"))
                     yield {
