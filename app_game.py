@@ -10,7 +10,8 @@ from agentscope.message import Msg
 from utils import format_welcome_html
 import utils
 from dotenv import find_dotenv, load_dotenv
-_ = load_dotenv(find_dotenv()) 
+
+_ = load_dotenv(find_dotenv())
 
 uid = threading.current_thread().name
 
@@ -52,6 +53,7 @@ def init_game(state):
     state['product_agent'] = agents[5]
     return state
 
+
 # 创建 Gradio 界面
 demo = gr.Blocks(css='assets/appBot.css')
 with demo:
@@ -61,7 +63,7 @@ with demo:
         </div>
         """
     gr.HTML(warning_html_code)
-    
+
     state = gr.State({'session_seed': uid})
     tabs = gr.Tabs(visible=True)
     with tabs:
@@ -70,7 +72,7 @@ with demo:
             user_chat_bot_cover = gr.HTML(format_welcome_html())
         with gr.Row():
             new_button = gr.Button(value='🚀开始设计', variant='primary')
-    
+
     game_tabs = gr.Tabs(visible=False)
     with game_tabs:
         main_tab = gr.Tab('主界面', id=0)
@@ -86,7 +88,9 @@ with demo:
                     )
                 with gr.Column(min_width=270):
                     user_chatsys = gr.Chatbot(
-                        value=[['您好，欢迎来到产品设计大师，先由我们专业的销售导购和您交流您的需求，你只需要做出简单选择即可，输入任意字符开始', None]],
+                        value=[[
+                                   '您好，欢迎来到产品设计大师，先由我们专业的销售导购和您交流您的需求，你只需要做出简单选择即可，输入任意字符开始',
+                                   None]],
                         elem_classes="app-chatbot",
                         avatar_images=[tutor_avatar, user_avatar, product_avatar],
                         label="系统栏",
@@ -105,16 +109,14 @@ with demo:
                 return_welcome_button = gr.Button(value="↩️返回首页")
             with gr.Row():
                 image_preview = gr.Image('assets/logo.png', width=300)  # 设置图片路径和宽度
-    
+
+
     def game_ui():
         return {tabs: gr.update(visible=False), game_tabs: gr.update(visible=True)}
 
+
     def welcome_ui():
         return {tabs: gr.update(visible=True), game_tabs: gr.update(visible=False)}
-
-
-
-
 
 
     def send_message(chatbot, chatsys, user_input, _state):
@@ -199,13 +201,13 @@ with demo:
                 }
                 xx = painter(design_msg)
                 image_url = xx.url[0]
-                #                xmsg = Msg(
-                #                    name="user",
-                #                    role="user",
-                #                    content=xx.content,
-                #                    url=xx.url,
-                #                )
-                #                chatbot.append((f"""生成的图片如下\n\n<img src="{image_url}" alt="{image_url}" />""", None))
+#                xmsg = Msg(
+#                    name="user",
+#                    role="user",
+#                    content=xx.content,
+#                    url=image_url,
+#                )
+#                chatbot.append((xmsg, None))
 
                 chatbot.append((None, f"""生成的图片如下：\n
                             <a href="{image_url}">
@@ -219,10 +221,10 @@ with demo:
                 }
             else:
                 tutor_msg = tutor_agent(user_input)
-                #tutor_msg.role = "assistant"
+                # tutor_msg.role = "assistant"
                 history = history + tutor_msg.content
-                chatsys.append( (f"{tutor_msg.content}", None))
-                i = i+1
+                chatsys.append((f"{tutor_msg.content}", None))
+                i = i + 1
                 yield {
                     user_chatbot: chatbot,
                     user_chatsys: chatsys,
@@ -237,7 +239,7 @@ with demo:
                 }
 
             else:
-                j = j+1
+                j = j + 1
                 if j > 1:
                     if "开始" in user_input or "重新" in user_input:
                         tutor = True
@@ -256,15 +258,14 @@ with demo:
                             user_chatsys: chatsys,
                         }
                 else:
-                    chatsys.append(("下面由我们的产品经理为您服务和答疑，请您输入您的问题交流。您也可以通过关键词'重新'，'开始'重新回到导购环节", None))
+                    chatsys.append((
+                                   "下面由我们的产品经理为您服务和答疑，请您输入您的问题交流。您也可以通过关键词'重新'，'开始'重新回到导购环节",
+                                   None))
                     print("user_input last is", user_input)
                     yield {
                         user_chatbot: chatbot,
                         user_chatsys: chatsys,
                     }
-
-
-
 
 
     # change ui
