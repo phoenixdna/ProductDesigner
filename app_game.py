@@ -102,7 +102,7 @@ with demo:
                     user_chat_input = gr.Textbox(
                         label='user_chat_input',
                         show_label=False,
-                        placeholder='尽情挥洒你的才情吧')
+                        placeholder='你的想法是？输入exit/null退出当前会话')
                 with gr.Column(min_width=70, scale=1):
                     send_button = gr.Button('📣发送', variant='primary')
             with gr.Row():
