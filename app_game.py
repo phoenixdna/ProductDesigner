@@ -33,7 +33,7 @@ history = ''
 
 tutor = True
 
-b_pic = False
+extracted_msg = ''
 
 
 def init_game(state):
@@ -123,6 +123,7 @@ with demo:
         # 将发送的消息添加到聊天历史
         global tutor
         global history
+        global extracted_msg
         global i
         global j
         tutor_agent = _state['tutor_agent']
@@ -178,7 +179,8 @@ with demo:
                         user_chatbot: chatbot,
                         user_chatsys: chatsys,
                     }
-
+                extracted_msg = requirement
+                print("extracted-msg: ",extracted_msg)
                 print("here is the prompt part")
 
                 msg = Msg(
@@ -246,15 +248,17 @@ with demo:
                 if j > 1:
                     if "开始" in user_input or "重新" in user_input:
                         tutor = True
-                        product_msg = product_agent("再见")
-                        chatsys.append((f"{product_msg.content}", None))
+                        #product_msg = product_agent("再见")
+                        #chatsys.append((f"{product_msg.content}", None))
                         chatsys.append(("让我们再次启动设计流程！", None))
+                        tutor_msg = product_agent("再见")
+                        chatsys.append((f"{tutor_msg.content}", None))
                         yield {
                             user_chatbot: chatbot,
                             user_chatsys: chatsys,
                         }
                     else:
-                        product_msg = product_agent(user_input)
+                        product_msg = product_agent(user_input+extracted_msg)
                         chatsys.append((f"{product_msg.content}", None))
                         yield {
                             user_chatbot: chatbot,
@@ -265,6 +269,8 @@ with demo:
                                    "下面由我们的产品经理为您服务和答疑，请您输入您的问题交流。您也可以通过关键词'重新'，'开始'重新回到导购环节",
                                    None))
                     print("user_input last is", user_input)
+                    product_msg = product_agent("你好")
+                    chatsys.append((f"{product_msg.content}", None))
                     yield {
                         user_chatbot: chatbot,
                         user_chatsys: chatsys,

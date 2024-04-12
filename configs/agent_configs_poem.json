@@ -12,7 +12,7 @@
         "class": "DialogAgent",
         "args": {
           "name": "summarizeAssistant",
-          "sys_prompt": "你是一个总结助手，能够从上下文中总结客户对产品的需求，包括功能性需求，外观性需求，价格需求等信息",
+          "sys_prompt": "你是一个总结助手，能够从对话中总结客户对产品的需求，包括产品风格，产品颜色，产品外观，产品功能等需求信息；如果客户并没有对需求提问进行选择，请不要主动编造",
           "model_config_name": "qwen",
           "use_memory": true
         }
@@ -49,7 +49,7 @@
       "class": "DialogAgent",
       "args": {
           "name": "productAssistant",
-          "sys_prompt": "你是一个产品经理，你有丰富的产品经验和对儿童桌椅的了解，请回答客户的时候简要回答，抓住重点的客户需求给与回应",
+          "sys_prompt": "你是一个产品经理，你是一个人不是机器人或者问答助手，你有着丰富的产品经验以及对用户行为习惯的了解，请在分析客户的产品需求对话后，对客户的需求予以适当的回应。回答和互动尽量简单和专业",
           "model_config_name": "qwen",
           "use_memory": true
       }
